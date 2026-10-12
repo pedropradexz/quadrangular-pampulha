@@ -604,4 +604,67 @@
             salvarDados();
             imagemTemporariaBase64 = null; // Reseta após salvar
             document.getElementById('admDestFile').value = ''; // Reseta input file
-            mostrarToast("Evento em Destaque atualizado
+            mostrarToast("Evento em Destaque atualizado com sucesso!");
+        }
+
+        function atualizarTela() {
+            document.getElementById('destaqueTitulo').innerText = db.destaque.titulo;
+            document.getElementById('destaqueImagem').src = db.destaque.imagem;
+            document.getElementById('destaqueDesc').innerText = db.destaque.desc;
+            document.getElementById('destaqueDataHora').innerText = db.destaque.dataHora;
+            document.getElementById('destaqueLocal').innerText = db.destaque.local;
+
+            document.getElementById('admDestTitulo').value = db.destaque.titulo;
+            document.getElementById('admDestImg').value = db.destaque.imagem.startsWith('data:image') ? '' : db.destaque.imagem;
+            document.getElementById('imgPreviewAdm').src = db.destaque.imagem;
+            document.getElementById('admDestData').value = db.destaque.dataHora;
+            document.getElementById('admDestLocal').value = db.destaque.local;
+            document.getElementById('admDestDesc').value = db.destaque.desc;
+        }
+
+        function atualizarAdmin() {
+            document.getElementById('statVisitantes').innerText = db.visitantes.length;
+            document.getElementById('statGrupoWhats').innerText = db.visitantes.filter(v => v.queroGrupo).length;
+            document.getElementById('statOracoes').innerText = db.visitantes.filter(v => v.pedido && v.pedido !== "Nenhum pedido informado").length;
+
+            const containerVis = document.getElementById('listaVisitantesAdmin');
+            containerVis.innerHTML = db.visitantes.map(v => {
+                const wppClean = v.whatsapp.replace(/\D/g, '');
+                const msgWpp = v.queroGrupo 
+                    ? `Olá%20${encodeURIComponent(v.nome)},%20graça%20e%20paz!%20Seja%20muito%20bem-vindo(a)%20à%20Quadrangular%20Pampulha.%20Vi%20que%20você%20gostaria%20de%20entrar%20no%20nosso%20grupo%20do%20WhatsApp!`
+                    : `Olá%20${encodeURIComponent(v.nome)},%20graça%20e%20paz!%20Seja%20muito%20bem-vindo(a)%20à%20Quadrangular%20Pampulha.`;
+
+                return `
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900">${v.nome}</h4>
+                                <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                                    <span class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">${v.tipo}</span>
+                                    ${v.queroGrupo ? '<span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md"><i class="fa-brands fa-whatsapp mr-1"></i> Quer Grupo de Avisos</span>' : ''}
+                                    <span class="text-[10px] text-slate-400">Data: ${v.data}</span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-1.5">
+                                <a href="https://wa.me/55${wppClean}?text=${msgWpp}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl text-xs font-bold" title="Chamar no WhatsApp">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </a>
+                                <button onclick="removerVisitante(${v.id})" class="bg-red-100 hover:bg-red-200 text-red-600 p-2 rounded-xl text-xs" title="Excluir">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-xs bg-white p-3 rounded-xl border border-slate-200/60">
+                            <strong class="text-slate-500 block mb-0.5">Pedido de Oração:</strong>
+                            <p class="text-slate-700 italic">"${v.pedido}"</p>
+                        </div>
+                    </div>
+                `;
+            }).join('') || '<p class="text-xs text-slate-400 italic">Nenhum visitante cadastrado.</p>';
+        }
+
+        atualizarTela();
+        atualizarAdmin();
+    </script>
+</body>
+</html>
